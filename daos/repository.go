@@ -3,6 +3,7 @@ package daos
 import (
 	"context"
 	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/findopt"
 
 	"github.com/aufaitio/data-access"
 	"github.com/aufaitio/data-access/models"
@@ -20,7 +21,7 @@ func NewRepositoryDAO() *RepositoryDAO {
 // Get reads the repository with the specified ID from the database.
 func (dao *RepositoryDAO) Get(rs access.Scope, id int64) (*models.Repository, error) {
 	var repository *models.Repository
-	col := rs.DB().Collection("repository")
+	col := rs.DB.Collection("repository")
 
 	err := col.FindOne(
 		context.Background(),
@@ -39,7 +40,7 @@ func (dao *RepositoryDAO) Get(rs access.Scope, id int64) (*models.Repository, er
 // Create saves a new repository record in the database.
 // The Repository.ID field will be populated with an automatically generated ID upon successful saving.
 func (dao *RepositoryDAO) Create(rs access.Scope, repository *models.Repository) error {
-	col := rs.DB().Collection("repository")
+	col := rs.DB.Collection("repository")
 	repoBson := models.NewDocFromRepository(repository)
 
 	_, err := col.InsertOne(
@@ -57,7 +58,7 @@ func (dao *RepositoryDAO) Update(rs access.Scope, id int64, repository *models.R
 	}
 
 	repoBson := models.NewDocFromRepository(repository)
-	col := rs.DB().Collection("repository")
+	col := rs.DB.Collection("repository")
 
 	_, err := col.UpdateOne(
 		context.Background(),
@@ -76,7 +77,7 @@ func (dao *RepositoryDAO) Delete(rs access.Scope, id int64) error {
 		return err
 	}
 
-	col := rs.DB().Collection("repository")
+	col := rs.DB.Collection("repository")
 	_, err = col.DeleteOne(
 		context.Background(),
 		bson.NewDocument(
@@ -89,7 +90,7 @@ func (dao *RepositoryDAO) Delete(rs access.Scope, id int64) error {
 
 // Count returns the number of the repository records in the database.
 func (dao *RepositoryDAO) Count(rs access.Scope) (int64, error) {
-	return rs.DB().Collection("repository").Count(
+	return rs.DB.Collection("repository").Count(
 		context.Background(),
 		bson.NewDocument(),
 	)
@@ -118,21 +119,21 @@ func (dao *RepositoryDAO) query(rs access.Scope, offset, limit int, filter *bson
 		err    error
 	)
 	repositoryList := []*models.Repository{}
-	col := rs.DB().Collection("repository")
+	col := rs.DB.Collection("repository")
 	ctx := context.Background()
 
 	if limit > 0 {
 		cursor, err = col.Find(
 			ctx,
 			filter,
-			mongo.Opt.Limit(int64(limit)),
-			mongo.Opt.Skip(int64(offset)),
+			findopt.Limit(int64(limit)),
+			findopt.Skip(int64(offset)),
 		)
 	} else {
 		cursor, err = col.Find(
 			ctx,
 			filter,
-			mongo.Opt.Skip(int64(offset)),
+			findopt.Skip(int64(offset)),
 		)
 	}
 

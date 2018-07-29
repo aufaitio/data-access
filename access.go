@@ -1,15 +1,20 @@
 package access
 
 import (
-	"context"
+	"github.com/Sirupsen/logrus"
 	"github.com/aufaitio/data-access/models"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
 // Scope - scope of request that initiated query
-type Scope interface {
-	DB() *mongo.Database
-	Context() context.Context
+type Scope struct {
+	Logger *logrus.Logger
+	DB     *mongo.Database
+}
+
+// NewScope provides an interface for the data access layer to interact with the app layer
+func NewScope(logger *logrus.Logger, db *mongo.Database) *Scope {
+	return &Scope{Logger: logger, DB: db}
 }
 
 // JobDAO specifies the interface of the job DAO needed by JobService.

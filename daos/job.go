@@ -37,7 +37,7 @@ func (dao *JobDAO) GetByName(rs access.Scope, name string) (*models.Job, error) 
 
 func (dao *JobDAO) get(rs access.Scope, doc *bson.Document) (*models.Job, error) {
 	var job *models.Job
-	col := rs.DB().Collection("job")
+	col := rs.DB.Collection("job")
 	result := bson.NewDocument()
 
 	err := col.FindOne(
@@ -57,7 +57,7 @@ func (dao *JobDAO) get(rs access.Scope, doc *bson.Document) (*models.Job, error)
 // Create saves a new job record in the database.
 // The Job.ID field will be populated with an automatically generated ID upon successful saving.
 func (dao *JobDAO) Create(rs access.Scope, job *models.Job) error {
-	col := rs.DB().Collection("job")
+	col := rs.DB.Collection("job")
 
 	jobBson := models.NewDocFromJob(job)
 	_, err := col.InsertOne(
@@ -75,7 +75,7 @@ func (dao *JobDAO) Update(rs access.Scope, id int64, job *models.Job) error {
 	}
 
 	jobBson := models.NewDocFromJob(job)
-	col := rs.DB().Collection("job")
+	col := rs.DB.Collection("job")
 	_, err := col.UpdateOne(
 		context.Background(),
 		bson.NewDocument(
@@ -94,7 +94,7 @@ func (dao *JobDAO) Delete(rs access.Scope, id int64) error {
 		return err
 	}
 
-	col := rs.DB().Collection("job")
+	col := rs.DB.Collection("job")
 	_, err = col.DeleteOne(
 		context.Background(),
 		bson.NewDocument(
@@ -107,7 +107,7 @@ func (dao *JobDAO) Delete(rs access.Scope, id int64) error {
 
 // Count returns the number of the job records in the database.
 func (dao *JobDAO) Count(rs access.Scope) (int64, error) {
-	col := rs.DB().Collection("job")
+	col := rs.DB.Collection("job")
 
 	return col.Count(
 		context.Background(),
@@ -118,7 +118,7 @@ func (dao *JobDAO) Count(rs access.Scope) (int64, error) {
 // Query retrieves the job records with the specified offset and limit from the database.
 func (dao *JobDAO) Query(rs access.Scope, offset, limit int) ([]*models.Job, error) {
 	jobList := []*models.Job{}
-	col := rs.DB().Collection("job")
+	col := rs.DB.Collection("job")
 	ctx := context.Background()
 
 	cursor, err := col.Find(
