@@ -1,0 +1,75 @@
+hash: 133508f2fc7637e371fa7bdda5eb6d8667abf3e2096ac63332edda61c889795a
+updated: 2018-07-28T21:59:44.294089594-05:00
+imports:
+- name: github.com/buger/jsonparser
+  version: 2cac668e8456b4284edb0715e17e2af02d3ec993
+- name: github.com/go-ozzo/ozzo-validation
+  version: 9d6782aa52aad2ec5f3ea5af63b7dc4bc5192c40
+- name: github.com/go-stack/stack
+  version: 259ab82a6cad3992b4e21ff5cac294ccb06474bc
+- name: github.com/golang/snappy
+  version: 553a641470496b2327abcac10b36396bd98e45c9
+- name: github.com/mongodb/mongo-go-driver
+  version: 8df56f107cdd485351eb2523992c3364114b4b2e
+  subpackages:
+  - bson
+  - bson/builder
+  - bson/decimal
+  - bson/elements
+  - bson/objectid
+  - bson/parser
+  - bson/parser/ast
+  - core/address
+  - core/auth
+  - core/auth/internal/gssapi
+  - core/command
+  - core/compressor
+  - core/connection
+  - core/connstring
+  - core/description
+  - core/dispatch
+  - core/event
+  - core/option
+  - core/readconcern
+  - core/readpref
+  - core/result
+  - core/session
+  - core/tag
+  - core/topology
+  - core/uuid
+  - core/version
+  - core/wiremessage
+  - core/writeconcern
+  - internal
+  - mongo
+  - mongo/aggregateopt
+  - mongo/changestreamopt
+  - mongo/clientopt
+  - mongo/collectionopt
+  - mongo/countopt
+  - mongo/dbopt
+  - mongo/deleteopt
+  - mongo/distinctopt
+  - mongo/dropcollopt
+  - mongo/findopt
+  - mongo/indexopt
+  - mongo/insertopt
+  - mongo/listcollectionopt
+  - mongo/listdbopt
+  - mongo/mongoopt
+  - mongo/replaceopt
+  - mongo/runcmdopt
+  - mongo/updateopt
+- name: golang.org/x/crypto
+  version: 027cca12c2d63e3d62b670d901e8a2c95854feec
+  subpackages:
+  - pbkdf2
+- name: golang.org/x/net
+  version: db08ff08e8622530d9ed3a0e8ac279f6d4c02196
+  subpackages:
+  - context
+- name: golang.org/x/sync
+  version: f52d1811a62927559de87708c8913c1650ce4f26
+  subpackages:
+  - semaphore
+testImports: []
