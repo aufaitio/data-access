@@ -1,13 +1,11 @@
 package daos
 
 import (
-	"context"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/findopt"
-
-	"github.com/aufaitio/data-access"
 	"github.com/aufaitio/data-access/models"
 	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/findopt"
+	"golang.org/x/net/context"
 )
 
 // RepositoryDAO persists repository data in database
@@ -19,9 +17,9 @@ func NewRepositoryDAO() *RepositoryDAO {
 }
 
 // Get reads the repository with the specified ID from the database.
-func (dao *RepositoryDAO) Get(rs access.Scope, id int64) (*models.Repository, error) {
+func (dao *RepositoryDAO) Get(db *mongo.Database, id int64) (*models.Repository, error) {
 	var repository *models.Repository
-	col := rs.DB.Collection("repository")
+	col := db.Collection("repository")
 
 	err := col.FindOne(
 		context.Background(),
@@ -39,8 +37,8 @@ func (dao *RepositoryDAO) Get(rs access.Scope, id int64) (*models.Repository, er
 
 // Create saves a new repository record in the database.
 // The Repository.ID field will be populated with an automatically generated ID upon successful saving.
-func (dao *RepositoryDAO) Create(rs access.Scope, repository *models.Repository) error {
-	col := rs.DB.Collection("repository")
+func (dao *RepositoryDAO) Create(db *mongo.Database, repository *models.Repository) error {
+	col := db.Collection("repository")
 	repoBson := models.NewDocFromRepository(repository)
 
 	_, err := col.InsertOne(
@@ -52,13 +50,13 @@ func (dao *RepositoryDAO) Create(rs access.Scope, repository *models.Repository)
 }
 
 // Update saves the changes to an repository in the database.
-func (dao *RepositoryDAO) Update(rs access.Scope, id int64, repository *models.Repository) error {
-	if _, err := dao.Get(rs, id); err != nil {
+func (dao *RepositoryDAO) Update(db *mongo.Database, id int64, repository *models.Repository) error {
+	if _, err := dao.Get(db, id); err != nil {
 		return err
 	}
 
 	repoBson := models.NewDocFromRepository(repository)
-	col := rs.DB.Collection("repository")
+	col := db.Collection("repository")
 
 	_, err := col.UpdateOne(
 		context.Background(),
@@ -71,13 +69,13 @@ func (dao *RepositoryDAO) Update(rs access.Scope, id int64, repository *models.R
 }
 
 // Delete deletes an repository with the specified ID from the database.
-func (dao *RepositoryDAO) Delete(rs access.Scope, id int64) error {
-	repository, err := dao.Get(rs, id)
+func (dao *RepositoryDAO) Delete(db *mongo.Database, id int64) error {
+	repository, err := dao.Get(db, id)
 	if err != nil {
 		return err
 	}
 
-	col := rs.DB.Collection("repository")
+	col := db.Collection("repository")
 	_, err = col.DeleteOne(
 		context.Background(),
 		bson.NewDocument(
@@ -89,21 +87,21 @@ func (dao *RepositoryDAO) Delete(rs access.Scope, id int64) error {
 }
 
 // Count returns the number of the repository records in the database.
-func (dao *RepositoryDAO) Count(rs access.Scope) (int64, error) {
-	return rs.DB.Collection("repository").Count(
+func (dao *RepositoryDAO) Count(db *mongo.Database) (int64, error) {
+	return db.Collection("repository").Count(
 		context.Background(),
 		bson.NewDocument(),
 	)
 }
 
 // Query retrieves the repository records with the specified offset and limit from the database.
-func (dao *RepositoryDAO) Query(rs access.Scope, offset, limit int) ([]*models.Repository, error) {
-	return dao.query(rs, offset, limit, bson.NewDocument())
+func (dao *RepositoryDAO) Query(db *mongo.Database, offset, limit int) ([]*models.Repository, error) {
+	return dao.query(db, offset, limit, bson.NewDocument())
 }
 
 // QueryByDependency queries by dependency.
-func (dao *RepositoryDAO) QueryByDependency(rs access.Scope, dependencyName string) ([]*models.Repository, error) {
-	return dao.query(rs, 0, 0, bson.NewDocument(
+func (dao *RepositoryDAO) QueryByDependency(db *mongo.Database, dependencyName string) ([]*models.Repository, error) {
+	return dao.query(db, 0, 0, bson.NewDocument(
 		bson.EC.SubDocumentFromElements("dependencies",
 			bson.EC.ArrayFromElements("$in",
 				bson.VC.DocumentFromElements(bson.EC.String("name", dependencyName)),
@@ -113,13 +111,13 @@ func (dao *RepositoryDAO) QueryByDependency(rs access.Scope, dependencyName stri
 }
 
 // Query retrieves the repository records with the specified offset and limit from the database.
-func (dao *RepositoryDAO) query(rs access.Scope, offset, limit int, filter *bson.Document) ([]*models.Repository, error) {
+func (dao *RepositoryDAO) query(db *mongo.Database, offset, limit int, filter *bson.Document) ([]*models.Repository, error) {
 	var (
 		cursor mongo.Cursor
 		err    error
 	)
 	repositoryList := []*models.Repository{}
-	col := rs.DB.Collection("repository")
+	col := db.Collection("repository")
 	ctx := context.Background()
 
 	if limit > 0 {

@@ -1,10 +1,10 @@
 package daos
 
 import (
-	"context"
-	"github.com/aufaitio/data-access"
 	"github.com/aufaitio/data-access/models"
 	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo"
+	"golang.org/x/net/context"
 )
 
 // JobDAO persists job data in database
@@ -16,9 +16,9 @@ func NewJobDAO() *JobDAO {
 }
 
 // Get reads the job with the specified ID from the database.
-func (dao *JobDAO) Get(rs access.Scope, id int64) (*models.Job, error) {
+func (dao *JobDAO) Get(db *mongo.Database, id int64) (*models.Job, error) {
 	return dao.get(
-		rs,
+		db,
 		bson.NewDocument(
 			bson.EC.Int64("id", id),
 		),
@@ -26,18 +26,18 @@ func (dao *JobDAO) Get(rs access.Scope, id int64) (*models.Job, error) {
 }
 
 // GetByName reads the job with the specified name from the database.
-func (dao *JobDAO) GetByName(rs access.Scope, name string) (*models.Job, error) {
+func (dao *JobDAO) GetByName(db *mongo.Database, name string) (*models.Job, error) {
 	return dao.get(
-		rs,
+		db,
 		bson.NewDocument(
 			bson.EC.String("name", name),
 		),
 	)
 }
 
-func (dao *JobDAO) get(rs access.Scope, doc *bson.Document) (*models.Job, error) {
+func (dao *JobDAO) get(db *mongo.Database, doc *bson.Document) (*models.Job, error) {
 	var job *models.Job
-	col := rs.DB.Collection("job")
+	col := db.Collection("job")
 	result := bson.NewDocument()
 
 	err := col.FindOne(
@@ -56,8 +56,8 @@ func (dao *JobDAO) get(rs access.Scope, doc *bson.Document) (*models.Job, error)
 
 // Create saves a new job record in the database.
 // The Job.ID field will be populated with an automatically generated ID upon successful saving.
-func (dao *JobDAO) Create(rs access.Scope, job *models.Job) error {
-	col := rs.DB.Collection("job")
+func (dao *JobDAO) Create(db *mongo.Database, job *models.Job) error {
+	col := db.Collection("job")
 
 	jobBson := models.NewDocFromJob(job)
 	_, err := col.InsertOne(
@@ -69,13 +69,13 @@ func (dao *JobDAO) Create(rs access.Scope, job *models.Job) error {
 }
 
 // Update saves the changes to an job in the database.
-func (dao *JobDAO) Update(rs access.Scope, id int64, job *models.Job) error {
-	if _, err := dao.Get(rs, id); err != nil {
+func (dao *JobDAO) Update(db *mongo.Database, id int64, job *models.Job) error {
+	if _, err := dao.Get(db, id); err != nil {
 		return err
 	}
 
 	jobBson := models.NewDocFromJob(job)
-	col := rs.DB.Collection("job")
+	col := db.Collection("job")
 	_, err := col.UpdateOne(
 		context.Background(),
 		bson.NewDocument(
@@ -88,13 +88,13 @@ func (dao *JobDAO) Update(rs access.Scope, id int64, job *models.Job) error {
 }
 
 // Delete deletes an job with the specified ID from the database.
-func (dao *JobDAO) Delete(rs access.Scope, id int64) error {
-	_, err := dao.Get(rs, id)
+func (dao *JobDAO) Delete(db *mongo.Database, id int64) error {
+	_, err := dao.Get(db, id)
 	if err != nil {
 		return err
 	}
 
-	col := rs.DB.Collection("job")
+	col := db.Collection("job")
 	_, err = col.DeleteOne(
 		context.Background(),
 		bson.NewDocument(
@@ -106,8 +106,8 @@ func (dao *JobDAO) Delete(rs access.Scope, id int64) error {
 }
 
 // Count returns the number of the job records in the database.
-func (dao *JobDAO) Count(rs access.Scope) (int64, error) {
-	col := rs.DB.Collection("job")
+func (dao *JobDAO) Count(db *mongo.Database) (int64, error) {
+	col := db.Collection("job")
 
 	return col.Count(
 		context.Background(),
@@ -116,9 +116,9 @@ func (dao *JobDAO) Count(rs access.Scope) (int64, error) {
 }
 
 // Query retrieves the job records with the specified offset and limit from the database.
-func (dao *JobDAO) Query(rs access.Scope, offset, limit int) ([]*models.Job, error) {
+func (dao *JobDAO) Query(db *mongo.Database, offset, limit int) ([]*models.Job, error) {
 	jobList := []*models.Job{}
-	col := rs.DB.Collection("job")
+	col := db.Collection("job")
 	ctx := context.Background()
 
 	cursor, err := col.Find(
