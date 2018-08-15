@@ -16,16 +16,13 @@ func NewRepositoryDAO() *RepositoryDAO {
 	return &RepositoryDAO{}
 }
 
-// Get reads the repository with the specified ID from the database.
-func (dao *RepositoryDAO) Get(db *mongo.Database, id int64) (*models.Repository, error) {
+func (dao *RepositoryDAO) get(db *mongo.Database, doc *bson.Document) (*models.Repository, error) {
 	var repository *models.Repository
 	col := db.Collection("repository")
 
 	err := col.FindOne(
 		context.Background(),
-		bson.NewDocument(
-			bson.EC.Int64("id", id),
-		),
+		doc,
 	).Decode(repository)
 
 	if err != nil {
@@ -33,6 +30,26 @@ func (dao *RepositoryDAO) Get(db *mongo.Database, id int64) (*models.Repository,
 	}
 
 	return repository, err
+}
+
+// Get reads the repository with the specified ID from the database.
+func (dao *RepositoryDAO) Get(db *mongo.Database, id int64) (*models.Repository, error) {
+	return dao.get(
+		db,
+		bson.NewDocument(
+			bson.EC.Int64("id", id),
+		),
+	)
+}
+
+// GetByName reads the from db by name
+func (dao *RepositoryDAO) GetByName(db *mongo.Database, name string) (*models.Repository, error) {
+	return dao.get(
+		db,
+		bson.NewDocument(
+			bson.EC.String("name", name),
+		),
+	)
 }
 
 // Create saves a new repository record in the database.

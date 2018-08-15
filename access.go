@@ -27,6 +27,8 @@ type JobDAO interface {
 type RepositoryDAO interface {
 	// Get returns the repository with the specified repository ID.
 	Get(db *mongo.Database, id int64) (*models.Repository, error)
+	// GetByName returns a repository with specified name.
+	GetByName(db *mongo.Database, name string) (*models.Repository, error)
 	// Count returns the number of repositories.
 	Count(db *mongo.Database) (int64, error)
 	// Query returns the list of repositories with the given offset and limit.
