@@ -20,7 +20,6 @@ type Dependency struct {
 
 // Repository represents a Repository registered with Au Fait.
 type Repository struct {
-	ID           int64        `json:"id" bson:"id"`
 	Name         string       `json:"name" bson:"name"`
 	Config       Config       `json:"config" bson:"config"`
 	Dependencies []Dependency `json:"dependencies" bson:"dependencies"`
@@ -91,8 +90,6 @@ func NewRepositoryFromDoc(doc *bson.Document) (*Repository, error) {
 			remote := configDoc.Lookup("remote")
 
 			repository.Config = Config{Branch: branch.StringValue(), Remote: remote.StringValue()}
-		case "_id":
-			repository.ID = elm.Int64()
 		default:
 		}
 	}

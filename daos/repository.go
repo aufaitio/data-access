@@ -32,18 +32,8 @@ func (dao *RepositoryDAO) get(db *mongo.Database, doc *bson.Document) (*models.R
 	return repository, err
 }
 
-// Get reads the repository with the specified ID from the database.
-func (dao *RepositoryDAO) Get(db *mongo.Database, id int64) (*models.Repository, error) {
-	return dao.get(
-		db,
-		bson.NewDocument(
-			bson.EC.Int64("id", id),
-		),
-	)
-}
-
-// GetByName reads the from db by name
-func (dao *RepositoryDAO) GetByName(db *mongo.Database, name string) (*models.Repository, error) {
+// Get reads the repository with the specified name from the database.
+func (dao *RepositoryDAO) Get(db *mongo.Database, name string) (*models.Repository, error) {
 	return dao.get(
 		db,
 		bson.NewDocument(
@@ -53,7 +43,6 @@ func (dao *RepositoryDAO) GetByName(db *mongo.Database, name string) (*models.Re
 }
 
 // Create saves a new repository record in the database.
-// The Repository.ID field will be populated with an automatically generated ID upon successful saving.
 func (dao *RepositoryDAO) Create(db *mongo.Database, repository *models.Repository) error {
 	col := db.Collection("repository")
 	repoBson := models.NewDocFromRepository(repository)
@@ -67,8 +56,8 @@ func (dao *RepositoryDAO) Create(db *mongo.Database, repository *models.Reposito
 }
 
 // Update saves the changes to an repository in the database.
-func (dao *RepositoryDAO) Update(db *mongo.Database, id int64, repository *models.Repository) error {
-	if _, err := dao.Get(db, id); err != nil {
+func (dao *RepositoryDAO) Update(db *mongo.Database, name string, repository *models.Repository) error {
+	if _, err := dao.Get(db, name); err != nil {
 		return err
 	}
 
@@ -78,16 +67,16 @@ func (dao *RepositoryDAO) Update(db *mongo.Database, id int64, repository *model
 	_, err := col.UpdateOne(
 		context.Background(),
 		bson.NewDocument(
-			bson.EC.Int64("id", id),
+			bson.EC.String("name", name),
 		),
 		repoBson,
 	)
 	return err
 }
 
-// Delete deletes an repository with the specified ID from the database.
-func (dao *RepositoryDAO) Delete(db *mongo.Database, id int64) error {
-	repository, err := dao.Get(db, id)
+// Delete deletes an repository with the specified name from the database.
+func (dao *RepositoryDAO) Delete(db *mongo.Database, name string) error {
+	repository, err := dao.Get(db, name)
 	if err != nil {
 		return err
 	}
