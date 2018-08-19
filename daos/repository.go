@@ -1,10 +1,10 @@
 package daos
 
 import (
-	"github.com/quantumew/data-access/models"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/findopt"
+	"github.com/quantumew/data-access/models"
 	"golang.org/x/net/context"
 )
 
@@ -112,6 +112,21 @@ func (dao *RepositoryDAO) QueryByDependency(db *mongo.Database, dependencyName s
 			bson.EC.ArrayFromElements("$in",
 				bson.VC.DocumentFromElements(bson.EC.String("name", dependencyName)),
 			),
+		),
+	))
+}
+
+// QueryByName queries for repositories by name.
+func (dao *RepositoryDAO) QueryByName(db *mongo.Database, nameList []string) ([]*models.Repository, error) {
+	var queryList *bson.Array
+
+	for _, name := range nameList {
+		queryList.Append(bson.VC.String(name))
+	}
+
+	return dao.query(db, 0, 0, bson.NewDocument(
+		bson.EC.SubDocumentFromElements("name",
+			bson.EC.Array("$in", queryList),
 		),
 	))
 }
