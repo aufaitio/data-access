@@ -1,7 +1,7 @@
 package daos
 
 import (
-	"github.com/aufaitio/data-access/models"
+	"github.com/quantumew/data-access/models"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/mongo/findopt"
