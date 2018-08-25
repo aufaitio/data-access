@@ -74,6 +74,22 @@ func (dao *repositoryDAO) Update(db *mongo.Database, name string, repository *mo
 	return err
 }
 
+func (dao *repositoryDAO) Patch(db *mongo.Database, repositoryList []*models.Repository) []error {
+	var errList []error
+
+	// For now doing multiple singular updates. Need to look into bulk find and upsert.
+	// For what I am doing this is more then sufficient.
+	for _, repo := range repositoryList {
+		err := dao.Update(db, repo.Name, repo)
+
+		if err != nil {
+			errList = append(errList, err)
+		}
+	}
+
+	return errList
+}
+
 // Delete deletes an repository with the specified name from the database.
 func (dao *repositoryDAO) Delete(db *mongo.Database, name string) error {
 	repository, err := dao.Get(db, name)

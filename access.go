@@ -40,7 +40,7 @@ type RepositoryDAO interface {
 	// Update updates the repository with given name in the storage.
 	Update(db *mongo.Database, name string, repository *models.Repository) error
 	// Update updates the repository with given name in the storage.
-	Patch(db *mongo.Database, repositoryList []*models.Repository) error
+	Patch(db *mongo.Database, repositoryList []*models.Repository) []error
 	// Delete removes the repository with given name from the storage.
 	Delete(db *mongo.Database, name string) error
 }

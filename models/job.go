@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/go-ozzo/ozzo-validation"
 	"github.com/mongodb/mongo-go-driver/bson"
-	"math/rand"
 )
 
 type (
@@ -17,7 +16,6 @@ type (
 	Job struct {
 		Dependencies []*PublishedDependency `json:"dependencies" bson:"dependencies"`
 		Expiration   string                 `json:"expiration" bson:"expiration"`
-		ID           int64                  `json:"id" bson:"id"`
 		Name         string                 `json:"name" bson:"name"`
 		State        string                 `json:"state" bson:"state"`
 	}
@@ -90,8 +88,6 @@ func NewJobFromDoc(doc *bson.Document) (*Job, error) {
 			job.Name = elm.StringValue()
 		case "state":
 			job.State = elm.StringValue()
-		case "_id":
-			job.ID = elm.Int64()
 		default:
 		}
 	}
@@ -110,12 +106,8 @@ func NewDocFromJob(job *Job) *bson.Document {
 		))
 		depList = depList.Append(depBson)
 	}
-	if job.ID < 0 {
-		job.ID = rand.Int63()
-	}
 
 	return bson.NewDocument(
-		bson.EC.Int64("id", job.ID),
 		bson.EC.String("name", job.Name),
 		bson.EC.Array("dependencies", depList),
 		bson.EC.String("state", job.State),
