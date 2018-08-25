@@ -9,14 +9,14 @@ import (
 )
 
 // RepositoryDAO persists repository data in database
-type RepositoryDAO struct{}
+type repositoryDAO struct{}
 
 // NewRepositoryDAO creates a new RepositoryDAO
-func NewRepositoryDAO() *RepositoryDAO {
-	return &RepositoryDAO{}
+func NewRepositoryDAO() *repositoryDAO {
+	return &repositoryDAO{}
 }
 
-func (dao *RepositoryDAO) get(db *mongo.Database, doc *bson.Document) (*models.Repository, error) {
+func (dao repositoryDAO) get(db *mongo.Database, doc *bson.Document) (*models.Repository, error) {
 	var repository *models.Repository
 	col := db.Collection("repository")
 
@@ -33,7 +33,7 @@ func (dao *RepositoryDAO) get(db *mongo.Database, doc *bson.Document) (*models.R
 }
 
 // Get reads the repository with the specified name from the database.
-func (dao *RepositoryDAO) Get(db *mongo.Database, name string) (*models.Repository, error) {
+func (dao repositoryDAO) Get(db *mongo.Database, name string) (*models.Repository, error) {
 	return dao.get(
 		db,
 		bson.NewDocument(
@@ -43,7 +43,7 @@ func (dao *RepositoryDAO) Get(db *mongo.Database, name string) (*models.Reposito
 }
 
 // Create saves a new repository record in the database.
-func (dao *RepositoryDAO) Create(db *mongo.Database, repository *models.Repository) error {
+func (dao repositoryDAO) Create(db *mongo.Database, repository *models.Repository) error {
 	col := db.Collection("repository")
 	repoBson := models.NewDocFromRepository(repository)
 
@@ -56,7 +56,7 @@ func (dao *RepositoryDAO) Create(db *mongo.Database, repository *models.Reposito
 }
 
 // Update saves the changes to an repository in the database.
-func (dao *RepositoryDAO) Update(db *mongo.Database, name string, repository *models.Repository) error {
+func (dao repositoryDAO) Update(db *mongo.Database, name string, repository *models.Repository) error {
 	if _, err := dao.Get(db, name); err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (dao *RepositoryDAO) Update(db *mongo.Database, name string, repository *mo
 }
 
 // Delete deletes an repository with the specified name from the database.
-func (dao *RepositoryDAO) Delete(db *mongo.Database, name string) error {
+func (dao repositoryDAO) Delete(db *mongo.Database, name string) error {
 	repository, err := dao.Get(db, name)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (dao *RepositoryDAO) Delete(db *mongo.Database, name string) error {
 }
 
 // Count returns the number of the repository records in the database.
-func (dao *RepositoryDAO) Count(db *mongo.Database) (int64, error) {
+func (dao repositoryDAO) Count(db *mongo.Database) (int64, error) {
 	return db.Collection("repository").Count(
 		context.Background(),
 		bson.NewDocument(),
@@ -101,12 +101,12 @@ func (dao *RepositoryDAO) Count(db *mongo.Database) (int64, error) {
 }
 
 // Query retrieves the repository records with the specified offset and limit from the database.
-func (dao *RepositoryDAO) Query(db *mongo.Database, offset, limit int) ([]*models.Repository, error) {
+func (dao repositoryDAO) Query(db *mongo.Database, offset, limit int) ([]*models.Repository, error) {
 	return dao.query(db, offset, limit, bson.NewDocument())
 }
 
 // QueryByDependency queries by dependency.
-func (dao *RepositoryDAO) QueryByDependency(db *mongo.Database, dependencyName string) ([]*models.Repository, error) {
+func (dao repositoryDAO) QueryByDependency(db *mongo.Database, dependencyName string) ([]*models.Repository, error) {
 	return dao.query(db, 0, 0, bson.NewDocument(
 		bson.EC.SubDocumentFromElements("dependencies",
 			bson.EC.ArrayFromElements("$in",
@@ -117,7 +117,7 @@ func (dao *RepositoryDAO) QueryByDependency(db *mongo.Database, dependencyName s
 }
 
 // QueryByName queries for repositories by name.
-func (dao *RepositoryDAO) QueryByName(db *mongo.Database, nameList []string) ([]*models.Repository, error) {
+func (dao repositoryDAO) QueryByName(db *mongo.Database, nameList []string) ([]*models.Repository, error) {
 	var queryList *bson.Array
 
 	for _, name := range nameList {
@@ -132,7 +132,7 @@ func (dao *RepositoryDAO) QueryByName(db *mongo.Database, nameList []string) ([]
 }
 
 // Query retrieves the repository records with the specified offset and limit from the database.
-func (dao *RepositoryDAO) query(db *mongo.Database, offset, limit int, filter *bson.Document) ([]*models.Repository, error) {
+func (dao repositoryDAO) query(db *mongo.Database, offset, limit int, filter *bson.Document) ([]*models.Repository, error) {
 	var (
 		cursor mongo.Cursor
 		err    error
