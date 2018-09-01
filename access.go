@@ -21,6 +21,10 @@ type JobDAO interface {
 	Update(db *mongo.Database, name string, job *models.Job) error
 	// Delete removes the job with given name from the storage.
 	Delete(db *mongo.Database, name string) error
+	// Claim access and lock job fo processing
+	Claim(db *mongo.Database) (*models.Job, error)
+	// Release put job back in queue
+	Release(db *mongo.Database, job *models.Job) error
 }
 
 // RepositoryDAO specifies the interface of the repository DAO needed by RepositoryService.

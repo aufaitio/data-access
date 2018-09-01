@@ -116,7 +116,15 @@ func (dao *jobDAO) Count(db *mongo.Database) (int64, error) {
 	)
 }
 
-func (dao *jobDAO) Claim(db *mongo.Database, offset, limit int) (*models.Job, error) {
+// Release put job back in queue
+func (dao *jobDAO) Release(db *mongo.Database, job *models.Job) error {
+	job.State = models.Idle
+
+	return dao.Update(db, job.Name, job)
+}
+
+// Claim access and lock job fo processing
+func (dao *jobDAO) Claim(db *mongo.Database) (*models.Job, error) {
 	job, err := dao.get(
 		db,
 		bson.NewDocument(
