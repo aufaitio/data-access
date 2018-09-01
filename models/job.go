@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/go-ozzo/ozzo-validation"
 	"github.com/mongodb/mongo-go-driver/bson"
+	"time"
 )
 
 type (
@@ -15,7 +16,7 @@ type (
 	// Job represents Builder Job.
 	Job struct {
 		Dependencies []*PublishedDependency `json:"dependencies" bson:"dependencies"`
-		Expiration   string                 `json:"expiration" bson:"expiration"`
+		Expiration   time.Time              `json:"expiration" bson:"expiration"`
 		Name         string                 `json:"name" bson:"name"`
 		State        string                 `json:"state" bson:"state"`
 	}
@@ -83,7 +84,7 @@ func NewJobFromDoc(doc *bson.Document) (*Job, error) {
 
 			job.Dependencies = depList
 		case "expiration":
-			job.Expiration = elm.StringValue()
+			job.Expiration = elm.DateTime()
 		case "name":
 			job.Name = elm.StringValue()
 		case "state":

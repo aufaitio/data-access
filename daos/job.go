@@ -5,6 +5,7 @@ import (
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/quantumew/data-access/models"
 	"golang.org/x/net/context"
+	"time"
 )
 
 // JobDAO persists job data in database
@@ -113,6 +114,44 @@ func (dao *jobDAO) Count(db *mongo.Database) (int64, error) {
 		context.Background(),
 		bson.NewDocument(),
 	)
+}
+
+func (dao *jobDAO) Claim(db *mongo.Database, offset, limit int) (*models.Job, error) {
+	job, err := dao.get(
+		db,
+		bson.NewDocument(
+			bson.EC.ArrayFromElements(
+				"$or",
+				bson.VC.DocumentFromElements(
+					bson.EC.String("state", models.Idle),
+				),
+				bson.VC.DocumentFromElements(
+					bson.EC.SubDocumentFromElements("state", bson.EC.Boolean("$exists", false)),
+				),
+				bson.VC.DocumentFromElements(
+					bson.EC.SubDocumentFromElements(
+						"expiration",
+						bson.EC.Time("$lt", time.Now()),
+					),
+				),
+			),
+		),
+	)
+
+	if err != nil {
+		return job, err
+	}
+
+	job.State = models.InProgress
+	job.Expiration = time.Now().Add(time.Duration(time.Minute * 30))
+
+	err = dao.Update(db, job.Name, job)
+
+	if err != nil {
+		return job, err
+	}
+
+	return job, nil
 }
 
 // Query retrieves the job records with the specified offset and limit from the database.
